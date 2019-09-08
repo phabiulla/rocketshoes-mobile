@@ -1,4 +1,6 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 import {ActivityIndicator} from 'react-native';
 import {
     ProductImage,
@@ -14,26 +16,41 @@ import {
 import api from '../../services/api';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {ScrollView} from 'react-native-gesture-handler';
+import * as CartActions from '../../store/modules/cart/actions';
 
-export default class Home extends Component {
+class Home extends Component {
     state = {
         products: [],
         loading: true,
     };
-
     async componentDidMount() {
         const response = await api.get('products');
         const data = response.data.map(product => ({
             ...product,
-            priceFormatted: product.price,
+            priceFormatted: product.price, //formatPrice(product.price),
             loadingAddCart: false,
         }));
 
         this.setState({products: data, loading: false});
     }
 
+    handleAddProduct = product => {
+        const items = this.state.products;
+        const index = this.state.products.indexOf(product);
+        items[index].loadingAddCart = true;
+
+        this.setState({products: items});
+
+        const {addToCartRequest} = this.props;
+        addToCartRequest(product.id);
+    };
+
     render() {
         const {products, loading} = this.state;
+        const {amount} = this.props;
+        const lastId =
+            products.length > 0 ? products[products.length - 1].id : null;
+
         return (
             <ProductList>
                 {loading ? (
@@ -41,28 +58,33 @@ export default class Home extends Component {
                 ) : (
                     <ScrollView horizontal>
                         {products.map(product => (
-                            <ProductItem key={product.id}>
-                                <ProductImage source={product.image} />
+                            <ProductItem
+                                key={product.id}
+                                last={lastId && lastId === product.id}>
+                                <ProductImage source={{uri: product.image}} />
                                 <ProductTitle>{product.title}</ProductTitle>
                                 <ProductPrice>
                                     {product.priceFormatted}
                                 </ProductPrice>
-                                <ButtonAddToCart>
+                                <ButtonAddToCart
+                                    onPress={() =>
+                                        this.handleAddProduct(product)
+                                    }>
                                     <ButtonAddToCartCounter>
                                         {product.loadingAddCart ? (
                                             <ActivityIndicator
                                                 color="#fff"
-                                                size={24}
+                                                size={20}
                                             />
                                         ) : (
                                             <Icon
                                                 name="add-shopping-cart"
-                                                size={24}
+                                                size={20}
                                                 color="#FFF"
                                             />
                                         )}
                                         <ButtonAddToCartCounterTitle>
-                                            3
+                                            {amount[product.id] || 0}
                                         </ButtonAddToCartCounterTitle>
                                     </ButtonAddToCartCounter>
                                     <ButtonAddToCartTitle>
@@ -77,3 +99,20 @@ export default class Home extends Component {
         );
     }
 }
+
+const mapStateToProps = state => ({
+    amount: state.cart.reduce((amount, product) => {
+        amount[product.id] = product.amount;
+
+        return amount;
+    }, {}),
+    loading: false,
+});
+
+const mapDispatchToProps = dispatch =>
+    bindActionCreators(CartActions, dispatch);
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(Home);

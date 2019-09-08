@@ -1,11 +1,13 @@
-import styled from 'styled-components/native';
+import styled, {css} from 'styled-components/native';
 import {RectButton} from 'react-native-gesture-handler';
 
 export const ProductList = styled.View`
-    flex: 1;
     padding: 30px;
+    flex: 1;
+    margin-top: 60px;
     flex-direction: row;
     background: #191920;
+    align-self: center;
 `;
 
 export const ProductItem = styled.View`
@@ -16,11 +18,14 @@ export const ProductItem = styled.View`
     background: #fff;
     border-radius: 4px;
     padding: 20px;
-    margin-right: 20px;
-
-    &:last-child {
-        margin-right: 0 !important;
-    }
+    ${props =>
+        props.last
+            ? css`
+                  margin-right: 0px;
+              `
+            : css`
+                  margin-right: 20px;
+              `}
 `;
 
 export const ProductImage = styled.Image`
