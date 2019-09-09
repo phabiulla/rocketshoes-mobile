@@ -22,31 +22,44 @@ class Home extends Component {
     state = {
         products: [],
         loading: true,
+        load: [],
     };
+
     async componentDidMount() {
         const response = await api.get('products');
-        const data = response.data.map(product => ({
-            ...product,
-            priceFormatted: product.price, //formatPrice(product.price),
-            loadingAddCart: false,
-        }));
+        this.setState({products: response.data, loading: false});
+    }
 
-        this.setState({products: data, loading: false});
+    static getDerivedStateFromProps(props, current_state) {
+        const {load} = current_state;
+
+        if (props.cart) {
+            props.cart.map(product => {
+                load[product.id] = product.load;
+
+                return load;
+            }, {});
+        }
+
+        return {
+            ...current_state,
+            load: load,
+        };
     }
 
     handleAddProduct = product => {
-        const items = this.state.products;
-        const index = this.state.products.indexOf(product);
-        items[index].loadingAddCart = true;
-
-        this.setState({products: items});
-
+        const {load} = this.state;
         const {addToCartRequest} = this.props;
+
+        load[product.id] = true;
+        this.setState({load});
+
         addToCartRequest(product.id);
     };
 
     render() {
-        const {products, loading} = this.state;
+        const {products, loading, load} = this.state;
+
         const {amount} = this.props;
         const lastId =
             products.length > 0 ? products[products.length - 1].id : null;
@@ -63,15 +76,13 @@ class Home extends Component {
                                 last={lastId && lastId === product.id}>
                                 <ProductImage source={{uri: product.image}} />
                                 <ProductTitle>{product.title}</ProductTitle>
-                                <ProductPrice>
-                                    {product.priceFormatted}
-                                </ProductPrice>
+                                <ProductPrice>{product.price}</ProductPrice>
                                 <ButtonAddToCart
                                     onPress={() =>
                                         this.handleAddProduct(product)
                                     }>
                                     <ButtonAddToCartCounter>
-                                        {product.loadingAddCart ? (
+                                        {load[product.id] ? (
                                             <ActivityIndicator
                                                 color="#fff"
                                                 size={20}
@@ -101,6 +112,7 @@ class Home extends Component {
 }
 
 const mapStateToProps = state => ({
+    cart: state.cart,
     amount: state.cart.reduce((amount, product) => {
         amount[product.id] = product.amount;
 

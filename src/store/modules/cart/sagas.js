@@ -1,9 +1,7 @@
 import {call, select, put, all, takeLatest} from 'redux-saga/effects';
-//import {toast} from 'react-toastify';
 import api from '../../../services/api';
-//import history from '../../../services/history';
+import {Alert} from 'react-native';
 import {addToCartSuccess, updateAmountSuccess} from './actions';
-//import {formatPrice} from '../../../util/format';
 
 function* addToCart({id}) {
     const productExist = yield select(state =>
@@ -17,7 +15,7 @@ function* addToCart({id}) {
     const amount = currentAmount + 1;
 
     if (amount > stockAmount) {
-        //toast.error('Quantidade solicitada não disponível em estoque.');
+        Alert.alert('Quantidade solicitada não disponível em estoque.');
         return;
     }
 
@@ -29,7 +27,7 @@ function* addToCart({id}) {
         const data = {
             ...response.data,
             amount: 1,
-            priceFormatted: response.data.price, //formatPrice(response.data.price),
+            load: false,
         };
 
         yield put(addToCartSuccess(data));
@@ -47,7 +45,7 @@ function* updateAmount({id, amount}) {
     const stockAmount = stock.data.amount;
 
     if (amount > stockAmount) {
-        // toast.error('Quantidade solicitada não disponível em estoque.');
+        Alert.alert('Quantidade solicitada não disponível em estoque.');
         return;
     }
 
