@@ -4,7 +4,7 @@ import {RectButton} from 'react-native-gesture-handler';
 export const ProductList = styled.View`
     padding: 30px;
     flex: 1;
-    margin-top: 60px;
+    /* margin-top: 60px; */
     flex-direction: row;
     background: #191920;
     align-self: center;

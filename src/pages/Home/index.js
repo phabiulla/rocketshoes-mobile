@@ -23,11 +23,11 @@ class Home extends Component {
         products: [],
         loading: true,
     };
+
     async componentDidMount() {
         const response = await api.get('products');
         const data = response.data.map(product => ({
             ...product,
-            priceFormatted: product.price, //formatPrice(product.price),
             loadingAddCart: false,
         }));
 
@@ -35,12 +35,6 @@ class Home extends Component {
     }
 
     handleAddProduct = product => {
-        const items = this.state.products;
-        const index = this.state.products.indexOf(product);
-        items[index].loadingAddCart = true;
-
-        this.setState({products: items});
-
         const {addToCartRequest} = this.props;
         addToCartRequest(product.id);
     };
@@ -63,26 +57,17 @@ class Home extends Component {
                                 last={lastId && lastId === product.id}>
                                 <ProductImage source={{uri: product.image}} />
                                 <ProductTitle>{product.title}</ProductTitle>
-                                <ProductPrice>
-                                    {product.priceFormatted}
-                                </ProductPrice>
+                                <ProductPrice> {product.price} € </ProductPrice>
                                 <ButtonAddToCart
                                     onPress={() =>
                                         this.handleAddProduct(product)
                                     }>
                                     <ButtonAddToCartCounter>
-                                        {product.loadingAddCart ? (
-                                            <ActivityIndicator
-                                                color="#fff"
-                                                size={20}
-                                            />
-                                        ) : (
-                                            <Icon
-                                                name="add-shopping-cart"
-                                                size={20}
-                                                color="#FFF"
-                                            />
-                                        )}
+                                        <Icon
+                                            name="add-shopping-cart"
+                                            size={20}
+                                            color="#FFF"
+                                        />
                                         <ButtonAddToCartCounterTitle>
                                             {amount[product.id] || 0}
                                         </ButtonAddToCartCounterTitle>

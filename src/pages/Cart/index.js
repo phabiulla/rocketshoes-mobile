@@ -18,6 +18,8 @@ import {
     ContainerTotal,
     TotalTitle,
     TotalValue,
+    BtnFinish,
+    BtnText,
 } from './styles';
 import * as CartActions from '../../store/modules/cart/actions';
 
@@ -25,6 +27,7 @@ function Cart({cart, total, removeFromCart, updateAmountRequest}) {
     function increment(product) {
         updateAmountRequest(product.id, product.amount + 1);
     }
+
     function decrement(product) {
         updateAmountRequest(product.id, product.amount - 1);
     }
@@ -39,32 +42,42 @@ function Cart({cart, total, removeFromCart, updateAmountRequest}) {
                                 <Image source={{uri: item.image}} />
                                 <ContainerDetails>
                                     <Title>{item.title}</Title>
-                                    <Price>{item.price}</Price>
+                                    <Price>{item.price} €</Price>
                                 </ContainerDetails>
-                                <Icon size={24} color="#7159c1" name="delete" />
+                                <Icon
+                                    onPress={() => removeFromCart(item.id)}
+                                    size={20}
+                                    color="#7159c1"
+                                    name="delete"
+                                />
                             </ContainerInfos>
                             <ContainerAmount>
                                 <ContainerIncrements>
                                     <Icon
-                                        size={24}
+                                        onPress={() => decrement(item)}
+                                        size={20}
                                         color="#7159c1"
                                         name="remove-circle-outline"
                                     />
-                                    <Amount>1</Amount>
+                                    <Amount>{item.amount}</Amount>
                                     <Icon
-                                        size={24}
+                                        onPress={() => increment(item)}
+                                        size={20}
                                         color="#7159c1"
                                         name="add-circle-outline"
                                     />
                                 </ContainerIncrements>
-                                <Total>129,00 €</Total>
+                                <Total>{item.subtotal} €</Total>
                             </ContainerAmount>
                         </ContainerItem>
                     ))}
                     <ContainerTotal>
                         <TotalTitle>TOTAL</TotalTitle>
-                        <TotalValue>129,00 €</TotalValue>
+                        <TotalValue>{total} €</TotalValue>
                     </ContainerTotal>
+                    <BtnFinish>
+                        <BtnText> Finalizar Pedido</BtnText>
+                    </BtnFinish>
                 </>
             ) : (
                 <>
@@ -77,15 +90,13 @@ function Cart({cart, total, removeFromCart, updateAmountRequest}) {
 }
 
 const mapStateToProps = state => ({
-    cart: [
-        {
-            id: 1,
-            title: 'Tênis de Caminhada Leve Confortável',
-            price: 179.9,
-            image:
-                'https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/modulo-redux/tenis1.jpg',
-        },
-    ],
+    cart: state.cart.map(product => ({
+        ...product,
+        subtotal: product.price * product.amount,
+    })),
+    total: state.cart.reduce((total, product) => {
+        return total + product.price * product.amount;
+    }, 0),
 });
 
 const mapDispatchToProps = dispatch =>

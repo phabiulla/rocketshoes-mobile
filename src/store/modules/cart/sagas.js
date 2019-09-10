@@ -1,9 +1,7 @@
 import {call, select, put, all, takeLatest} from 'redux-saga/effects';
-//import {toast} from 'react-toastify';
 import api from '../../../services/api';
 //import history from '../../../services/history';
 import {addToCartSuccess, updateAmountSuccess} from './actions';
-//import {formatPrice} from '../../../util/format';
 
 function* addToCart({id}) {
     const productExist = yield select(state =>
@@ -28,8 +26,7 @@ function* addToCart({id}) {
 
         const data = {
             ...response.data,
-            amount: 1,
-            priceFormatted: response.data.price, //formatPrice(response.data.price),
+            amount: 1
         };
 
         yield put(addToCartSuccess(data));

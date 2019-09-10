@@ -18,7 +18,7 @@ export const EmptyText = styled.Text`
 
 export const ContainerItem = styled.View`
     flex-direction: column;
-    padding: 10px;
+    margin-bottom: 10px;
 `;
 export const ContainerInfos = styled.View`
     flex-direction: row;
@@ -32,13 +32,14 @@ export const Image = styled.Image`
 `;
 export const ContainerDetails = styled.View`
     flex-direction: column;
+    max-width: 180px;
 `;
 export const Title = styled.Text`
-    font-size: 18px;
+    font-size: 16px;
     color: #666;
 `;
 export const Price = styled.Text`
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
 `;
 export const ContainerAmount = styled.View`
@@ -47,6 +48,7 @@ export const ContainerAmount = styled.View`
     justify-content: space-between;
     border-radius: 4px;
     align-items: center;
+    height: 40px;
     padding: 6px;
 `;
 export const ContainerIncrements = styled.View`
@@ -55,15 +57,48 @@ export const ContainerIncrements = styled.View`
     align-items: center;
 `;
 export const Amount = styled.Text`
-    width: 50px;
+    width: 35px;
     background: #fff;
-    padding: 6px;
+    padding: 4px;
     margin: 0 5px 0 5px;
 `;
 export const Total = styled.Text`
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
 `;
-export const ContainerTotal = styled.View``;
-export const TotalTitle = styled.Text``;
-export const TotalValue = styled.Text``;
+export const ContainerTotal = styled.View`
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+    align-content: center;
+`;
+
+export const TotalTitle = styled.Text`
+    color: #999;
+    font-weight: bold;
+    text-transform: uppercase;
+`;
+export const TotalValue = styled.Text`
+    color: #191920;
+    font-size: 30px;
+    font-weight: bold;
+    text-transform: uppercase;
+`;
+
+export const BtnFinish = styled(RectButton)`
+    flex-direction: row;
+    justify-content: center;
+    border-radius: 4px;
+    align-items: center;
+    align-content: center;
+    width: 100%;
+    height: 40px;
+    margin-top: 30px;
+    background: #7159c1;
+`;
+
+export const BtnText = styled.Text`
+    font-size: 15px;
+    text-transform: uppercase;
+    color: #fff;
+`;
