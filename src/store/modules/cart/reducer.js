@@ -5,6 +5,8 @@ export default function cart(state = [], action) {
         case '@cart/ADD_SUCCESS':
             return produce(state, draft => {
                 const {product} = action;
+                product.load = false;
+
                 draft.push(product);
             });
         case '@cart/REMOVE':
@@ -21,6 +23,7 @@ export default function cart(state = [], action) {
 
                 if (productIndex >= 0) {
                     draft[productIndex].amount = Number(action.amount);
+                    draft[productIndex].load = false;
                 }
             });
         }
