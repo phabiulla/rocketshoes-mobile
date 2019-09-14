@@ -1,6 +1,5 @@
-import React, {Component} from 'react';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
+import React, {useState, useEffect} from 'react';
+import {useSelector, useDispatch} from 'react-redux';
 import {ActivityIndicator} from 'react-native';
 import {
     ProductImage,
@@ -18,112 +17,93 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import {ScrollView} from 'react-native-gesture-handler';
 import * as CartActions from '../../store/modules/cart/actions';
 
-class Home extends Component {
-    state = {
-        products: [],
-        loading: true,
-        load: [],
-    };
+export default function Home() {
+    const cart = useSelector(state => state.cart);
+    const amount = useSelector(state =>
+        state.cart.reduce((sumAmount, product) => {
+            sumAmount[product.id] = product.amount;
 
-    async componentDidMount() {
-        const response = await api.get('products');
-        this.setState({products: response.data, loading: false});
-    }
+            return sumAmount;
+        }, {}),
+    );
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [load, setLoad] = useState([]);
+    const [lastId, setLastId] = useState(null);
+    const dispatch = useDispatch();
 
-    static getDerivedStateFromProps(props, current_state) {
-        const {load} = current_state;
-
-        if (props.cart) {
-            props.cart.map(product => {
-                load[product.id] = product.load;
-                return load;
-            }, {});
+    useEffect(() => {
+        async function loadProducts() {
+            const response = await api.get('products');
+            setProducts(response.data);
+            setLoading(false);
         }
 
-        return {
-            ...current_state,
-            load: load,
-        };
-    }
+        loadProducts();
+    }, []);
 
-    handleAddProduct = product => {
-        const {load} = this.state;
-        const {addToCartRequest} = this.props;
+    useEffect(() => {
+        cart.map(product => {
+            load[product.id] = product.load;
+            return load;
+        }, {});
 
-        load[product.id] = true;
-        this.setState({load});
+        setLoad(load);
+    }, [cart, load]);
 
-        addToCartRequest(product.id);
-    };
-
-    render() {
-        const {products, loading, load} = this.state;
-
-        const {amount} = this.props;
-        const lastId =
-            products.length > 0 ? products[products.length - 1].id : null;
-
-        return (
-            <ProductList>
-                {loading ? (
-                    <ActivityIndicator color="#7159c1" size={36} />
-                ) : (
-                    <ScrollView horizontal>
-                        {products.map(product => (
-                            <ProductItem
-                                key={product.id}
-                                last={lastId && lastId === product.id}>
-                                <ProductImage source={{uri: product.image}} />
-                                <ProductTitle>{product.title}</ProductTitle>
-                                <ProductPrice> {product.price} € </ProductPrice>
-                                <ButtonAddToCart
-                                    onPress={() =>
-                                        this.handleAddProduct(product)
-                                    }>
-                                    <ButtonAddToCartCounter>
-                                        {load[product.id] ? (
-                                            <ActivityIndicator
-                                                color="#fff"
-                                                size={20}
-                                            />
-                                        ) : (
-                                            <Icon
-                                                name="add-shopping-cart"
-                                                size={20}
-                                                color="#FFF"
-                                            />
-                                        )}
-                                        <ButtonAddToCartCounterTitle>
-                                            {amount[product.id] || 0}
-                                        </ButtonAddToCartCounterTitle>
-                                    </ButtonAddToCartCounter>
-                                    <ButtonAddToCartTitle>
-                                        ADICIONAR
-                                    </ButtonAddToCartTitle>
-                                </ButtonAddToCart>
-                            </ProductItem>
-                        ))}
-                    </ScrollView>
-                )}
-            </ProductList>
+    useEffect(() => {
+        setLastId(
+            products.length > 0 ? products[products.length - 1].id : null,
         );
+    }, [lastId, products]);
+
+    function handleAddProduct(product) {
+        load[product.id] = true;
+
+        setLoad(load);
+        dispatch(CartActions.addToCartRequest(product.id));
     }
+
+    return (
+        <ProductList>
+            {loading ? (
+                <ActivityIndicator color="#7159c1" size={36} />
+            ) : (
+                <ScrollView horizontal>
+                    {products.map(product => (
+                        <ProductItem
+                            key={product.id}
+                            last={lastId && lastId === product.id}>
+                            <ProductImage source={{uri: product.image}} />
+                            <ProductTitle>{product.title}</ProductTitle>
+                            <ProductPrice> {product.price} € </ProductPrice>
+                            <ButtonAddToCart
+                                onPress={() => handleAddProduct(product)}>
+                                <ButtonAddToCartCounter>
+                                    {load[product.id] ? (
+                                        <ActivityIndicator
+                                            color="#fff"
+                                            size={20}
+                                        />
+                                    ) : (
+                                        <Icon
+                                            name="add-shopping-cart"
+                                            size={20}
+                                            color="#FFF"
+                                        />
+                                    )}
+                                    <ButtonAddToCartCounterTitle>
+                                        {amount[product.id] || 0}
+                                    </ButtonAddToCartCounterTitle>
+                                </ButtonAddToCartCounter>
+                                <ButtonAddToCartTitle>
+                                    ADICIONAR
+                                </ButtonAddToCartTitle>
+                            </ButtonAddToCart>
+                        </ProductItem>
+                    ))}
+                </ScrollView>
+            )}
+        </ProductList>
+    );
 }
-
-const mapStateToProps = state => ({
-    cart: state.cart,
-    amount: state.cart.reduce((amount, product) => {
-        amount[product.id] = product.amount;
-
-        return amount;
-    }, {}),
-    loading: false,
-});
-
-const mapDispatchToProps = dispatch =>
-    bindActionCreators(CartActions, dispatch);
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps,
-)(Home);

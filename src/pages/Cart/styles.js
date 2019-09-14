@@ -18,10 +18,12 @@ export const EmptyText = styled.Text`
 
 export const ContainerItem = styled.View`
     flex-direction: column;
+    width: 100%;
     margin-bottom: 10px;
 `;
 export const ContainerInfos = styled.View`
     flex-direction: row;
+    width: 100%;
     justify-content: space-between;
     align-self: center;
     align-items: center;
